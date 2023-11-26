@@ -63,7 +63,7 @@ def chat(model: str, messages: list) -> tuple[str, int]:
         raise OpenAIRequestError(f"Other error: {e}")
 
 
-def update_context(context: list, role: config.Roles, message: str) -> list:
+def update_context(context: list[dict[str,str]], role: config.Roles, message: str) -> list:
     context.append({"role": role.value, "content": message})
     return context
 
