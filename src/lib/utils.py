@@ -63,9 +63,29 @@ def chat(model: str, messages: list) -> tuple[str, int]:
         raise OpenAIRequestError(f"Other error: {e}")
 
 
-def update_context(context: list[dict[str,str]], role: config.Roles, message: str) -> list:
+def update_context(
+    context: list[dict[str, str]], role: config.Roles, message: str
+) -> list:
     context.append({"role": role.value, "content": message})
     return context
+
+
+def dynamic_context_management(
+    model: str, context: list[dict[str, str]]
+) -> tuple[list[dict[str, str]], int]:
+    Q0 = context[0]
+
+    COMMAND = {
+        "role": Roles.SYSTEM.value,
+        "content": "Please summarize our past conversation. I expect to use the summarized version for subsequent conversation, therefore the result should contain sufficient information for you to hold the subsequent conversation in a context aware manner. I also expect the summary to be 50 to 75% shorter than the sum of our past conversation.",
+    }
+    context.append(COMMAND)
+    response_text, usage = chat(model, context)
+    newContext = [
+        Q0,
+        {"role": Roles.ASSISTANT.value, "content": response_text},
+    ]
+    return newContext, usage
 
 
 def start():
@@ -74,33 +94,40 @@ def start():
 
     # Container to store chat history with one initial prompt to configure the conversation
     context = [
-        {"role": Roles.SYSTEM, "content": "Be a friendly companion and offer casual chat."}
+        {
+            "role": Roles.SYSTEM.value,
+            "content": "Be a friendly companion and offer casual chat.",
+        }
     ]
-    tokens = 0  # accumulated tokens spent in this session
-
+    global_context = []
+    tokens = 0  # running tokens
+    accumulated_tokens = 0  # accumulated tokens spent in this session
     try:
         while True:
             response_text, usage = chat(model, context)
 
-            update_context(
-                context=context, role=Roles.ASSISTANT, message=response_text
-            )
+            update_context(context=context, role=Roles.ASSISTANT, message=response_text)
             tokens += usage
+
+            if tokens > config.TOKEN_THRESHOLD:
+                accumulated_tokens += tokens
+                global_context.extend(context[1:])
+                context, tokens = dynamic_context_management(model, context)
 
             user_feedback = input(f"$_$: {response_text}\n^_^: ")
 
             if user_feedback == "q":
                 break
 
-            update_context(
-                context=context, role=Roles.USER, message=user_feedback
-            )
-        print(f"Accumulated Token Usage: {tokens}")
+            update_context(context=context, role=Roles.USER, message=user_feedback)
+        accumulated_tokens += tokens
+        print(f"Accumulated Token Usage: {accumulated_tokens}")
     except OpenAIRequestError as req_err:
         print(f"Request Eror: {req_err}", flush=True)
     except OpenAIResponseParsingError as parsing_err:
         print(f"Parsing Error: {parsing_err}", flush=True)
     except KeyboardInterrupt:
-        print(f"Accumulated Token Usage: {tokens}")
+        accumulated_tokens += tokens
+        print(f"Accumulated Token Usage: {accumulated_tokens}")
     except Exception as e:
         print("#$%^$#", str(e))
