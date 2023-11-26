@@ -2,7 +2,7 @@ import re
 import requests
 import config
 from lib.custom_exception import OpenAIRequestError, OpenAIResponseParsingError
-
+   
 def pick_model() -> str:
     print("Pick the model by enter the corresponding number")
     for idx, model in enumerate(config.MODELS, 1):
@@ -27,3 +27,15 @@ def pick_model() -> str:
 def start():
     model = pick_model()
     print(f">Model = {model}")
+
+    # Container to store chat history with one initial prompt to configure the conversation
+    context = [{"role": "system", "content": "Be a friendly companion and offer casual chat."}]
+    tokens = 0 # accumulated tokens spent in this session
+    
+    try:
+        while True:
+            # todo
+            pass
+    except Exception as e:
+        print(str(e))
+
