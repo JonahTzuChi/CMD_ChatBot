@@ -88,6 +88,31 @@ def dynamic_context_management(
     return newContext, usage
 
 
+def sanitize_filename(filename: str) -> str:
+    INVALID_CHARACTERS = '<>:"/\\|?*'
+    for char in INVALID_CHARACTERS:
+        filename = filename.replace(char, "_")
+    # Truncate the filename if it's too long
+    MAX_LENGTH = 64
+    return filename[:MAX_LENGTH]
+
+
+def export_chat_history(
+    filename: str, chat_history: list[dict[str, str]], create_new: bool
+) -> str:
+    """
+    COLUMNS: Role, Content
+    FORMAT : Start with ^, end with $, and separated by _______
+    """
+    filename = sanitize_filename(filename)
+    flag = "w" if create_new else "a"
+    EXPORT_PATH = f"./output/{filename}.txt"
+    with open(EXPORT_PATH, flag) as f:
+        for chat in chat_history[:]:
+            f.write(f"^{chat['role']}_______{chat['content']}$\n")
+    return EXPORT_PATH
+
+
 def start():
     model = pick_model()
     print(f">Model = {model}")
@@ -100,6 +125,10 @@ def start():
         }
     ]
     global_context = []
+
+    Q0 = input("How can I help you?\n") # Will be used as filename
+    update_context(context=context, role=Roles.USER, message=Q0)
+
     tokens = 0  # running tokens
     accumulated_tokens = 0  # accumulated tokens spent in this session
     try:
@@ -120,8 +149,12 @@ def start():
                 break
 
             update_context(context=context, role=Roles.USER, message=user_feedback)
+
         accumulated_tokens += tokens
         print(f"Accumulated Token Usage: {accumulated_tokens}")
+        global_context.extend(context)
+        export_filename = export_chat_history(Q0, global_context, create_new=True)
+        print(f"Exported to {export_filename}")
     except OpenAIRequestError as req_err:
         print(f"Request Eror: {req_err}", flush=True)
     except OpenAIResponseParsingError as parsing_err:
@@ -129,5 +162,8 @@ def start():
     except KeyboardInterrupt:
         accumulated_tokens += tokens
         print(f"Accumulated Token Usage: {accumulated_tokens}")
+        global_context.extend(context)
+        export_filename = export_chat_history(Q0, global_context, create_new=True)
+        print(f"Exported to {export_filename}")
     except Exception as e:
         print("#$%^$#", str(e))
