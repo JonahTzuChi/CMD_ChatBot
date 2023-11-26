@@ -138,11 +138,15 @@ def start():
             update_context(context=context, role=Roles.ASSISTANT, message=response_text)
             tokens += usage
 
-            if tokens > config.TOKEN_THRESHOLD:
+            if tokens > config.THROTTLE_THRESHOLD:
                 accumulated_tokens += tokens
                 global_context.extend(context[1:])
                 context, tokens = dynamic_context_management(model, context)
-
+            
+            if accumulated_tokens > config.TERMINATION_THRESHOLD:
+                print("$$$It is likely you have reach or exceeded the termination threshold!")
+                break
+            
             user_feedback = input(f"$_$: {response_text}\n^_^: ")
 
             if user_feedback == "q":
