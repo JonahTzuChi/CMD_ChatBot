@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-import PyPDF2
+import pypdf
 import json
 
 
@@ -26,7 +26,7 @@ def read_spreadsheet(filename: str) -> str:
 def read_pdf(filename: str) -> str:
     data = f"FileName:{filename}"
     with open(filename, "rb") as fileObj:
-        pdfReader = PyPDF2.PdfReader(fileObj)
+        pdfReader = pypdf.PdfReader(fileObj)
         pages = pdfReader.pages
         print(len(pages))
         for page in pages:
