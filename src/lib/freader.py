@@ -45,6 +45,7 @@ def read_npy_file(filename: str) -> str:
 
 def pickTextFileReader(extension: str):
     if extension in [
+        "md",
         "txt",
         "csv",
         "py",
@@ -76,13 +77,14 @@ def pickTextFileReader(extension: str):
 
 def readFile(filename: str) -> str:
     try:
-        if ~os.path.exists(filename):
+        if not os.path.exists(filename):
             return "FileIOError"
 
         extension = filename.split(".")[-1]
         fileReader = pickTextFileReader(extension)
 
-        return fileReader(filename)
+        data = fileReader(filename)
+        return data
     except Exception as e:
         print(str(e), flush=True)
         raise e
