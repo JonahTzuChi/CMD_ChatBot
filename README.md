@@ -8,7 +8,7 @@ Toy project. Interact with ChatGPT models at command line interface.
 1. Basic Chat (:heavy_check_mark:)
 2. Dynamic Context Management (:heavy_check_mark:)
 3. Export Chat History (:heavy_check_mark:)
-4. Load file to Chat (:thinking:)
+4. Load file to Chat (:heavy_check_mark:)
 5. Select chat mode (:thinking:)
 6. Pick up from chat history (:thinking:)
 7. Offer different context management policy like "most recent", "user only", "relevant only" (:thinking:)
