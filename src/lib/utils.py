@@ -1,3 +1,4 @@
+import os
 import re
 from enum import Enum
 import requests
@@ -156,11 +157,14 @@ def start():
             if re.search("^--file ", user_feedback) is not None:
                 filename = user_feedback.replace("--file ", "")
                 user_feedback = readFile(filename)
-                while user_feedback in ["FIleIOError", "Invalid File Extension"]:
-                    print(f"{user_feedback}")
+                while user_feedback in ["FileIOError", "Invalid File Extension"]:
                     user_feedback = input()
                     user_feedback = user_feedback.strip()
-                    if user_feedback == "q":
+                    
+                    if re.search("^--file ", user_feedback) is not None:
+                        filename = user_feedback.replace("--file ", "")
+                        user_feedback = readFile(filename)
+                    else:
                         break
 
             if user_feedback == "q":
