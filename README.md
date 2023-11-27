@@ -12,7 +12,7 @@ Toy project. Interact with ChatGPT models at command line interface.
 5. Select chat mode (:thinking:)
 6. Pick up from chat history (:thinking:)
 7. Offer different context management policy like "most recent", "user only", "relevant only" (:thinking:)
-8. Interpret csv/excel file format (:face_with_raised_eyebrow:)
+8. Interpret csv/excel file format (❓)
 
 
 # Python
