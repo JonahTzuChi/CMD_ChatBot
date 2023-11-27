@@ -4,7 +4,7 @@ import requests
 
 import config
 from lib.custom_exception import OpenAIRequestError, OpenAIResponseParsingError
-from freader import readFile
+from lib.freader import readFile
 
 class Roles(Enum):
     SYSTEM = "system"
@@ -65,7 +65,7 @@ def chat(model: str, messages: list) -> tuple[str, int]:
 
 
 def update_context(
-    context: list[dict[str, str]], role: config.Roles, message: str
+    context: list[dict[str, str]], role: Roles, message: str
 ) -> list:
     context.append({"role": role.value, "content": message})
     return context
