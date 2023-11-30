@@ -34,6 +34,34 @@ def pick_model() -> str:
         break  # valid input
     return config.MODELS[idx - 1]["name"]
 
+def pick_persona() -> dict[str, str]:
+    for idx, persona in enumerate(config.PERSONAS, 1):
+        print(
+            f"[{idx: 2}]\t{persona['role']:32s}"
+        )
+    print(f"[{len(config.PERSONAS)+1: 2}]\tEnter Custom\n")
+    idx = 1
+    while True:
+        choice = input()
+        # detect none numeric
+        if re.search(r"[^0-9+-]", choice):
+            print("Numbers only")
+            continue
+        idx = int(choice)
+        # detect out of bound
+        if idx == len(config.PERSONAS) + 1:
+            print("What is the expected role of this agent?")
+            role = input()
+            print("How would you define/describe it's characters? How you want the interaction be? What should be emphasized or avoided?")
+            prompt = input()
+            greeting = "How can I help you?"
+            return {"role": role, "prompt": prompt, "greeting": greeting}
+        
+        if idx > len(config.PERSONAS) or idx < 1:
+            print(f"Expect 1 to {len(config.PERSONAS)}")
+            continue
+        break  # valid input
+    return config.PERSONAS[idx-1]
 
 def chat(model: str, messages: list) -> tuple[str, int]:
     try:
@@ -114,21 +142,42 @@ def export_chat_history(
             f.write(f"^{chat['role']}_______{chat['content']}$\n")
     return EXPORT_PATH
 
-
-def start():
-    model = pick_model()
-    print(f">Model = {model}")
-
-    # Container to store chat history with one initial prompt to configure the conversation
+def prime(persona: dict) -> list[dict]:
     context = [
         {
             "role": Roles.SYSTEM.value,
-            "content": "Be a friendly companion and offer casual chat.",
+            "content": f"Be as described here: {persona['role']}. {persona['prompt']}",
+        },
+        {
+            "role": Roles.ASSISTANT.value,
+            "content": f"{persona['greeting']}"
         }
     ]
+    return context
+
+"""
+context = [
+        {
+            "role": Roles.SYSTEM.value,
+            "content": f"You are {persona['name']}. {persona['prompt']}",
+        },
+        {
+            "role": Roles.ASSISTANT.value,
+            "content": f"{persona['greeting']}"
+        }
+    ]
+"""
+def start():
+    model = pick_model()
+    print(f">Model = {model}")
+    
+    persona = pick_persona()
+
+    # Container to store chat history with one initial prompt to configure the conversation
+    context = prime(persona)
     global_context = []
 
-    Q0 = input("How can I help you?\n")  # Will be used as filename
+    Q0 = input(f"{persona['greeting']}\n")  # Will be used as filename
     update_context(context=context, role=Roles.USER, message=Q0)
 
     tokens = 0  # running tokens
