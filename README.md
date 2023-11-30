@@ -13,7 +13,7 @@ Toy project. Interact with ChatGPT models at command line interface.
 6. Pick up from chat history (:thinking:)
 7. Offer different context management policy like "most recent", "user only", "relevant only" (:thinking:)
 8. Interpret csv/excel file format (❓)
-
+9. Multi-file support (:thinking:)
 
 # Python
 I am on Python 3.10.12.
