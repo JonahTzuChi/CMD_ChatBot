@@ -107,7 +107,7 @@ def dynamic_context_management(
 
     COMMAND = {
         "role": Roles.SYSTEM.value,
-        "content": "Please summarize our past conversation. I expect to use the summarized version for subsequent conversation, therefore the result should contain sufficient information for you to hold the subsequent conversation in a context aware manner. I also expect the summary to be 50 to 75% shorter than the sum of our past conversation.",
+        "content": "Please summarize our past conversation. I expect to use the summarized version for subsequent conversation, therefore the result should contain sufficient information for you to hold the subsequent conversation in a context aware manner. I also expect the summary to be 30 to 50% shorter than the sum of our past conversation.",
     }
     context.append(COMMAND)
     response_text, usage = chat(model, context)
